@@ -50,21 +50,6 @@ function QuickAction({icon,label,onClick}:{icon:React.ReactNode;label:string;onC
 function EmptyMini({icon,text,action,onClick}:{icon:React.ReactNode;text:string;action?:string;onClick?:()=>void}){return <div className="empty-mini"><div className="empty-icon">{icon}</div><span>{text}</span>{action&&<button onClick={onClick}>{action}</button>}</div>}
 
 function TaskList({tasks,compact=false,onEdit,onDelete}:{tasks:Task[];compact?:boolean;onEdit?:(t:Task)=>void;onDelete?:(t:Task)=>void}){const {data,toggleTask,updateTask}=useAppStore();return <div className={`task-list ${compact?'compact':''}`}>{tasks.map(t=><TaskRow key={t.id} task={t} category={data.categories.find(c=>c.id===t.categoryId)} onToggle={()=>toggleTask(t.id)} onEdit={()=>onEdit?.(t)} onDelete={()=>onDelete?.(t)} onArchive={()=>updateTask(t.id,{archived:true})} onPriority={(p)=>updateTask(t.id,{priority:p})}/>)}</div>}
-type Priority = 'none'|'low'|'medium'|'high'|'urgent';
-type Category = {id:string;name:string;color:string};
-type Task = {id:string;title:string;completed:boolean;dueTime?:string;priority:Priority};
-declare const useState: any;
-declare const motion: any;
-declare const AnimatePresence: any;
-declare const Check: any;
-declare const Circle: any;
-declare const Clock3: any;
-declare const MoreHorizontal: any;
-declare const Pencil: any;
-declare const Flag: any;
-declare const Archive: any;
-declare const Trash2: any;
-declare const priorityMeta: any;
 
 function TaskRow(
   {task,category,onToggle,onEdit,onDelete,onArchive,onPriority}:
