@@ -50,8 +50,62 @@ function QuickAction({icon,label,onClick}:{icon:React.ReactNode;label:string;onC
 function EmptyMini({icon,text,action,onClick}:{icon:React.ReactNode;text:string;action?:string;onClick?:()=>void}){return <div className="empty-mini"><div className="empty-icon">{icon}</div><span>{text}</span>{action&&<button onClick={onClick}>{action}</button>}</div>}
 
 function TaskList({tasks,compact=false,onEdit,onDelete}:{tasks:Task[];compact?:boolean;onEdit?:(t:Task)=>void;onDelete?:(t:Task)=>void}){const {data,toggleTask,updateTask}=useAppStore();return <div className={`task-list ${compact?'compact':''}`}>{tasks.map(t=><TaskRow key={t.id} task={t} category={data.categories.find(c=>c.id===t.categoryId)} onToggle={()=>toggleTask(t.id)} onEdit={()=>onEdit?.(t)} onDelete={()=>onDelete?.(t)} onArchive={()=>updateTask(t.id,{archived:true})} onPriority={(p)=>updateTask(t.id,{priority:p})}/>)}</div>}
-function TaskRow({task,category,onToggle,onEdit,onDelete,onArchive,onPriority}:{task:Task;category?:Category;onToggle:()=>void;onEdit:()=>void;onDelete:()=>void;onArchive:()=>void;onPriority:(p:Priority)=>void}){const [menu,setMenu]=useState(false);return <motion.div layout className={`task-row ${task.completed?'is-complete':''}`}><button className={`task-check ${task.completed?'checked':''}`} onClick={onToggle} aria-label={task.completed?'Mark incomplete':'Mark complete'}>{task.completed?<Check size={16}/>:<Circle size={18}/>}</button><div className="task-accent" style={{background:category?.color||'rgba(255,255,255,.35)'}}/><div className="task-content" onDoubleClick={onEdit}><div className="task-title">{task.title}</div><div className="task-meta">{category&&<span>{category.name}</span>}{task.dueTime&&<><span>·</span><span><Clock3 size={12}/>{task.dueTime}</span></>}{task.priority!=='none'&&<><span>·</span><span className={`priority priority-${task.priority}`}>{priorityMeta[task.priority].icon}</span></>}</div></div><button className="more-btn" aria-label="Task options" onClick={()=>setMenu(!menu)}><MoreHorizontal size={17}/></button><AnimatePresence>{menu&&<motion.div className="context-pop glass glass-3" initial={{opacity:0,scale:.96,y:5}} animate={{opacity:1,scale:1,y:0}} exit={{opacity:0,scale:.96,y:5}}><button onClick={()=>{onEdit();setMenu(false)}}><Pencil size={15}/>Edit</button><button onClick={()=>{onToggle();setMenu(false)}}><Check size={15}/>{task.completed?'Uncomplete':'Complete'}</button><button onClick={()=>{const order:Priority[]=['none','low','medium','high','urgent'];onPriority(order[(order.indexOf(task.priority)+1)%order.length]);setMenu(false)}}><Flag size={15}/>Priority</button><button onClick={()=>{onArchive();setMenu(false)}}><Archive size={15}/>Archive</button><button className="danger-text" onClick={()=>{onDelete();setMenu(false)}}><Trash2 size={15}/>Delete</button></motion.div></AnimatePresence>}</motion.div>}
+type Priority = 'none'|'low'|'medium'|'high'|'urgent';
+type Category = {id:string;name:string;color:string};
+type Task = {id:string;title:string;completed:boolean;dueTime?:string;priority:Priority};
+declare const useState: any;
+declare const motion: any;
+declare const AnimatePresence: any;
+declare const Check: any;
+declare const Circle: any;
+declare const Clock3: any;
+declare const MoreHorizontal: any;
+declare const Pencil: any;
+declare const Flag: any;
+declare const Archive: any;
+declare const Trash2: any;
+declare const priorityMeta: any;
 
+function TaskRow(
+  {task,category,onToggle,onEdit,onDelete,onArchive,onPriority}:
+  {task:Task;category?:Category;onToggle:()=>void;onEdit:()=>void;onDelete:()=>void;onArchive:()=>void;onPriority:(p:Priority)=>void}
+){
+  const [menu,setMenu]=useState(false);
+  return (
+    <motion.div layout className={`task-row ${task.completed?'is-complete':''}`}>
+      <button
+        className={`task-check ${task.completed?'checked':''}`}
+        onClick={onToggle}
+        aria-label={task.completed?'Mark incomplete':'Mark complete'}
+      >
+        {task.completed?<Check size={16}/>:<Circle size={18}/>}
+      </button>
+      <div className="task-accent" style={{background:category?.color||'rgba(255,255,255,.35)'}}/>
+      <div className="task-content" onDoubleClick={onEdit}>
+        <div className="task-title">{task.title}</div>
+        <div className="task-meta">
+          {category&&<span>{category.name}</span>}
+          {task.dueTime&&<><span>·</span><span><Clock3 size={12}/>{task.dueTime}</span></>}
+          {task.priority!=='none'&&<><span>·</span><span className={`priority priority-${task.priority}`}>{priorityMeta[task.priority].icon}</span></>}
+        </div>
+      </div>
+      <button className="more-btn" aria-label="Task options" onClick={()=>setMenu(!menu)}>
+        <MoreHorizontal size={17}/>
+      </button>
+      <AnimatePresence>
+        {menu&&
+          <motion.div className="context-pop glass glass-3" initial={{opacity:0,scale:.96,y:5}} animate={{opacity:1,scale:1,y:0}} exit={{opacity:0,scale:.96,y:5}}>
+            <button onClick={()=>{onEdit();setMenu(false)}}><Pencil size={15}/>Edit</button>
+            <button onClick={()=>{onToggle();setMenu(false)}}><Check size={15}/>{task.completed?'Uncomplete':'Complete'}</button>
+            <button onClick={()=>{const order:Priority[]=['none','low','medium','high','urgent'];onPriority(order[(order.indexOf(task.priority)+1)%order.length]);setMenu(false)}}><Flag size={15}/>Priority</button>
+            <button onClick={()=>{onArchive();setMenu(false)}}><Archive size={15}/>Archive</button>
+            <button className="danger-text" onClick={()=>{onDelete();setMenu(false)}}><Trash2 size={15}/>Delete</button>
+          </motion.div>
+        }
+      </AnimatePresence>
+    </motion.div>
+  );
+}
 function Tasks({toast}:{toast:(m:string)=>void}){const {data,deleteTask}=useAppStore();const [filter,setFilter]=useState<'all'|'today'|'upcoming'|'overdue'|'completed'|'nodate'>('today');const [cat,setCat]=useState('all');const [editing,setEditing]=useState<Task|null>(null);const [confirm,setConfirm]=useState<Task|null>(null);const today=dateKey(new Date());const list=useMemo(()=>data.tasks.filter(t=>!t.archived).filter(t=>cat==='all'||t.categoryId===cat).filter(t=>{if(filter==='all')return true;if(filter==='today')return t.dueDate===today&&!t.completed;if(filter==='upcoming')return !!t.dueDate&&t.dueDate>today&&!t.completed;if(filter==='overdue')return !!t.dueDate&&t.dueDate<today&&!t.completed;if(filter==='completed')return t.completed;if(filter==='nodate')return !t.dueDate&&!t.completed;}).sort((a,b)=>{if(a.completed!==b.completed)return Number(a.completed)-Number(b.completed);return (a.dueDate||'9999').localeCompare(b.dueDate||'9999')||a.title.localeCompare(b.title)}),[data.tasks,cat,filter,today]);return <div><PageIntro eyebrow="TASKS" title="A gentle list of things." copy="Keep the important bits visible without making them feel heavy." actions={<span className="key-hint">Press <kbd>N</kbd> for a new task</span>}/><div className="filter-row scroll-x">{[['today','Today'],['upcoming','Upcoming'],['overdue','Overdue'],['nodate','No date'],['completed','Completed'],['all','All']] .map(([k,l])=><Chip key={k} active={filter===k} onClick={()=>setFilter(k as any)}>{l}</Chip>)}</div><div className="filter-row scroll-x category-filter">{data.categories.filter(c=>!c.archived).map(c=><Chip key={c.id} active={cat===c.id} color={c.color} onClick={()=>setCat(cat===c.id?'all':c.id)}>{c.name}</Chip>)}</div><div className="list-surface">{list.length?<TaskList tasks={list} onEdit={setEditing} onDelete={setConfirm}/>:<EmptyMini icon={<CheckSquare size={23}/>} text={filter==='today'?'Nothing scheduled for today.':'No tasks match this view.'} action="Create task" onClick={()=>{const ev=new CustomEvent('create-task');window.dispatchEvent(ev)}}/>}</div><TaskEditor open={!!editing} task={editing||undefined} onClose={()=>setEditing(null)} onSaved={()=>{setEditing(null);toast('Task updated')}}/><Confirm open={!!confirm} onClose={()=>setConfirm(null)} onConfirm={()=>{if(confirm)deleteTask(confirm.id);setConfirm(null);toast('Task deleted')}} title="Delete task?" message="This task will be removed from your space."/></div>}
 
 function Notes({toast}:{toast:(m:string)=>void}){const {data,updateNote,deleteNote}=useAppStore();const [q,setQ]=useState('');const [filter,setFilter]=useState<'all'|'pinned'|'favorite'>('all');const [editing,setEditing]=useState<Note|null>(null);const [confirm,setConfirm]=useState<Note|null>(null);const list=data.notes.filter(n=>!n.archived).filter(n=>filter==='all'||(filter==='pinned'?n.pinned:n.favorite)).filter(n=>(n.title+' '+n.content+' '+n.tags.join(' ')).toLowerCase().includes(q.toLowerCase())).sort((a,b)=>Number(b.pinned)-Number(a.pinned)||b.updatedAt.localeCompare(a.updatedAt));return <div><PageIntro eyebrow="NOTES" title="Make room for ideas." copy="A quiet editor for thoughts, references, and the things you don't want to lose." actions={<span className="key-hint">Press <kbd>Shift N</kbd> for a new note</span>}/><div className="notes-tools"><div className="search-field glass"><SearchIcon size={16}/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Search notes"/><kbd>⌘K</kbd></div><div className="filter-row"><Chip active={filter==='all'} onClick={()=>setFilter('all')}>All</Chip><Chip active={filter==='pinned'} onClick={()=>setFilter('pinned')}><Pin size={13}/>Pinned</Chip><Chip active={filter==='favorite'} onClick={()=>setFilter('favorite')}><Star size={13}/>Favorites</Chip></div></div>{list.length?<div className="notes-grid">{list.map(n=><NoteCard key={n.id} note={n} onEdit={()=>setEditing(n)} onDelete={()=>setConfirm(n)} onPin={()=>updateNote(n.id,{pinned:!n.pinned})} onFavorite={()=>updateNote(n.id,{favorite:!n.favorite})}/>)}</div>:<div className="list-surface"><EmptyMini icon={<NotebookPen size={23}/>} text="Your ideas have room to grow." action="Create note" onClick={()=>window.dispatchEvent(new CustomEvent('create-note'))}/></div>}<NoteEditor open={!!editing} note={editing||undefined} onClose={()=>setEditing(null)} onSaved={()=>{setEditing(null);toast('Note saved')}}/><Confirm open={!!confirm} onClose={()=>setConfirm(null)} onConfirm={()=>{if(confirm)deleteNote(confirm.id);setConfirm(null);toast('Note deleted')}} title="Delete note?" message="This note will be removed from your space."/></div>}
