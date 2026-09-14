@@ -1,0 +1,3 @@
+import type { CSSProperties } from 'react';
+import { useAppStore } from '../store/AppStore';
+export function GradientBackground(){const {data}=useAppStore();const s=data.settings;return <div className="gradient-world" style={{'--bg-intensity':String(s.backgroundIntensity),'--blur':`${s.blurAmount}px`,'--motion':`${18/s.animationSpeed}s`,'--c1':s.gradientColors.primary,'--c2':s.gradientColors.secondary,'--c3':s.gradientColors.accent} as CSSProperties}><div className="gradient-blob blob-a"/><div className="gradient-blob blob-b"/><div className="gradient-blob blob-c"/><div className="grain"/></div>}
