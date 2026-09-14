@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { addDays, endOfMonth, endOfWeek, format, isSameDay, isSameMonth, parseISO, startOfMonth, startOfWeek, subDays } from 'date-fns';
-import { Archive, ArrowUpRight, CalendarDays, Check, ChevronLeft, ChevronRight, Clock3, Copy, Download, Flag, Heart, Menu, MoreHorizontal, Pencil, Pin, Search as SearchIcon, Settings2, SlidersHorizontal, Star, Tag, Trash2, Upload, X, Circle, CheckSquare, NotebookPen, Folders, Sparkles, Timer, Moon, Sun, Monitor, RotateCcw, Undo2 } from './components/Icons';
+import { Archive, ArrowUpRight, CalendarDays, Check, ChevronLeft, ChevronRight, Clock3, Copy, Download, Flag, Heart, Menu, MoreHorizontal, Pencil, Pin, Search as SearchIcon, Settings, SlidersHorizontal, Star, Tag, Trash2, Upload, X, Circle, CheckSquare, NotebookPen, Folders, Sparkles, Timer, Moon, Sun, Monitor, RotateCcw, Undo2 } from './components/Icons';
 import { Glass, GlassButton, Chip } from './components/Glass';
 import { GradientBackground } from './components/GradientBackground';
 import { DynamicIslandNav } from './components/DynamicIslandNav';
